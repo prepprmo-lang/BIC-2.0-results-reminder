@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BIC 2.0 results reminder</title>
+<style>
+:root{--wall1:#e4d9c8;--wall2:#b9a98f;--ink:#1d2530;--mute:#4d5a66;--go:#1b7a57;--wait:#a85f00;--alert:#c0392b;--hand:"Segoe Print","Bradley Hand","Chalkboard SE","Marker Felt","Comic Sans MS",cursive;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--wall1:#3a2f26;--wall2:#171210}}
+*{box-sizing:border-box}
+html{height:100%}
+body{margin:0;min-height:100%;color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:radial-gradient(ellipse at 50% 20%,var(--wall1),var(--wall2));background-attachment:fixed;padding:max(20px,env(safe-area-inset-top)) 14px max(32px,env(safe-area-inset-bottom));overflow-x:hidden}
+p{margin:0}
+.wall{perspective:1500px;perspective-origin:30% 25%;padding:20px 0 40px}
+.board{position:relative;max-width:880px;margin:0 auto;padding:30px 26px 34px;display:grid;grid-template-columns:1fr 1fr;gap:30px 26px;border-radius:12px;border:15px solid;border-color:#93622f #5d3a1b #4a2d14 #7a5028;
+background:
+ radial-gradient(circle at 20% 30%,rgba(255,255,255,.16) 0 2px,transparent 3px) 0 0/23px 23px,
+ radial-gradient(circle at 70% 60%,rgba(60,30,10,.22) 0 2px,transparent 3px) 0 0/17px 17px,
+ radial-gradient(circle at 40% 85%,rgba(90,50,20,.3) 0 1.5px,transparent 2.5px) 0 0/13px 13px,
+ linear-gradient(135deg,#cf9f66,#b98450 50%,#c7955b);
+box-shadow:inset 0 0 36px rgba(40,20,5,.45),inset 0 0 0 2px rgba(255,255,255,.12),0 36px 46px -14px rgba(0,0,0,.55),22px 30px 40px rgba(0,0,0,.3);
+transform:rotateX(9deg) rotateY(-13deg) rotateZ(.6deg);transform-style:preserve-3d;transition:transform .6s ease}
+.board:hover,.board:focus-within{transform:rotateX(2deg) rotateY(-3deg) rotateZ(0deg)}
+.note{position:relative;background:#fff9c4;color:var(--ink);padding:24px 18px 18px;border-radius:2px;transform:translateZ(18px) rotate(var(--r,0deg));box-shadow:0 1px 1px rgba(0,0,0,.25),0 12px 16px -2px rgba(0,0,0,.38)}
+.note::before{content:"";position:absolute;top:-9px;left:50%;width:20px;height:20px;margin-left:-10px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffb3a7,#d6402f 55%,#8f2216);box-shadow:2px 7px 6px rgba(0,0,0,.45);transform:translateZ(10px)}
+.note::after{content:"";position:absolute;right:0;bottom:0;width:26px;height:26px;background:linear-gradient(135deg,transparent 50%,rgba(0,0,0,.1) 50%);border-bottom-right-radius:2px}
+h1,h2{font-family:var(--hand);margin:0 0 8px;line-height:1.2}
+h1{font-size:1.5rem}
+h2{font-size:1.2rem}
+.sub{color:var(--mute);font-size:.92rem}
+.note.hdr{grid-column:1/-1;background:#fffdf6;--r:-.6deg}
+.note.clock{grid-column:1/-1;background:#fff3a8;--r:.5deg;border-left:8px solid var(--wait)}
+.note.clock.today{border-left-color:var(--go)}
+.note.clock.past{border-left-color:var(--alert)}
+.note.check{background:#d6ebf8;--r:-1.2deg}
+.note.remind{background:#fcdbe1;--r:1deg}
+.note.places{background:#ddefd0;--r:.8deg}
+.note.short{background:#fffdf6;--r:-1deg}
+.status{font-weight:700;font-size:1.05rem}
+.time{font-size:clamp(2.6rem,12vw,4.2rem);font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1;margin:4px 0}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button,.btn,select{font:inherit;border-radius:8px;border:2px solid var(--ink);padding:10px 14px;min-height:44px;cursor:pointer}
+button,.btn{background:var(--ink);color:#fff;text-decoration:none;display:inline-flex;align-items:center}
+button.ghost,.btn.ghost{background:transparent;color:var(--ink)}
+select{background:#fff;color:var(--ink)}
+:focus-visible{outline:3px solid #0b57d0;outline-offset:2px}
+label.chk{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px dashed rgba(29,37,48,.35)}
+label.chk:first-of-type{border-top:0}
+input[type=checkbox]{width:22px;height:22px;margin-top:2px;flex:none}
+.banner{display:none;grid-column:1/-1;background:#d6402f;color:#fff;border-radius:2px;padding:18px;font-weight:700;font-family:var(--hand);font-size:1.15rem;transform:translateZ(30px) rotate(-.8deg);box-shadow:0 14px 20px -2px rgba(0,0,0,.5)}
+.banner.on{display:block}
+.banner button{margin-left:8px;background:#fff;color:#1d2530;border-color:#fff}
+ul{margin:0;padding-left:20px}
+li+li{margin-top:4px}
+.note-s{font-size:.88rem;color:var(--mute)}
+#log{font-size:.88rem;color:var(--mute);margin-top:8px}
+@media (max-width:700px){
+ .board{grid-template-columns:1fr;gap:28px;padding:24px 14px 28px;border-width:10px;transform:rotateX(5deg) rotateY(-6deg)}
+ .board:hover,.board:focus-within{transform:rotateX(1deg) rotateY(-2deg)}
+ .note.hdr,.note.clock,.banner{grid-column:auto}
+}
+@media (prefers-reduced-motion:reduce){.board{transition:none}}
+</style>
+</head>
+<body>
+<div class="wall">
+<main class="board">
+
+  <header class="note hdr">
+    <h1>BIC 2.0 results reminder</h1>
+    <p class="sub">Stage 1 results are announced on 22 October 2026 (India time) on the official website.</p>
+  </header>
+
+  <div class="banner" id="banner" role="alert" aria-live="assertive">Time to check the BIC results! <button id="dismiss">Dismiss</button></div>
+
+  <section class="note clock" id="clock" aria-live="polite">
+    <p class="status" id="status">Loading…</p>
+    <p class="time" id="time">--:--:--</p>
+    <p class="sub" id="timeLabel"></p>
+  </section>
+
+  <section class="note check">
+    <h2>Check the results</h2>
+    <div class="row">
+      <a class="btn" href="https://www.lpu.in/bharat-innovation-challenge/" target="_blank" rel="noopener" id="open">Open official BIC page</a>
+      <button class="ghost" id="checked">I checked just now</button>
+    </div>
+    <p id="log"></p>
+  </section>
+
+  <section class="note remind">
+    <h2>Remind me while this page is open</h2>
+    <div class="row">
+      <label for="every">Every</label>
+      <select id="every">
+        <option value="15">15 minutes</option>
+        <option value="30" selected>30 minutes</option>
+        <option value="60">1 hour</option>
+        <option value="120">2 hours</option>
+      </select>
+      <button id="start">Start reminders</button>
+      <button class="ghost" id="stop" hidden>Stop</button>
+    </div>
+    <p class="sub" id="next" style="margin-top:8px"></p>
+    <p class="note-s" style="margin-top:8px">Works only while this page stays open and the device is awake. Set a normal phone alarm as a backup.</p>
+  </section>
+
+  <section class="note places">
+    <h2>Places to look</h2>
+    <label class="chk"><input type="checkbox" data-k="site"><span>Official website: lpu.in/bharat-innovation-challenge</span></label>
+    <label class="chk"><input type="checkbox" data-k="mail"><span>Registered email, including spam and promotions</span></label>
+    <label class="chk"><input type="checkbox" data-k="wa"><span>WhatsApp on the registered mobile number</span></label>
+    <label class="chk"><input type="checkbox" data-k="ig"><span>Instagram: @BharatInnovationChallenge</span></label>
+    <p class="note-s" style="margin-top:8px">No news by tonight? Write to bic@lpu.co.in or message +91-9888598702 on WhatsApp.</p>
+  </section>
+
+  <section class="note short">
+    <h2>If the team is shortlisted</h2>
+    <ul>
+      <li>Grand Finale: 20–21 November 2026 at LPU, Phagwara, Punjab.</li>
+      <li>Bring a working prototype, a refined pitch deck and display materials.</li>
+      <li>The pitch is 7 minutes on stage, then 2–3 minutes of jury questions.</li>
+      <li>LPU covers stay, meals and local travel for finalist team members.</li>
+    </ul>
+    <p class="note-s" style="margin-top:8px">On the waitlist? Keep the finale dates free in case a slot opens.</p>
+  </section>
+
+</main>
+</div>
+
+<script>
+(function(){
+  var START=new Date('2026-10-22T00:00:00+05:30'), END=new Date('2026-10-23T00:00:00+05:30');
+  var $=function(id){return document.getElementById(id)};
+  var nextAt=null, wake=null, origTitle=document.title;
+
+  function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
+  function pad(n){return String(n).padStart(2,'0')}
+  function fmt(ms){
+    var s=Math.max(0,Math.floor(ms/1000)),d=Math.floor(s/86400);s-=d*86400;
+    var h=Math.floor(s/3600);s-=h*3600;var m=Math.floor(s/60);s-=m*60;
+    return (d?d+'d ':'')+pad(h)+':'+pad(m)+':'+pad(s);
+  }
+
+  function tick(){
+    var now=new Date(), c=$('clock');
+    c.className='note clock';
+    if(now<START){
+      $('status').textContent='Results are not due yet';
+      $('time').textContent=fmt(START-now);
+      $('timeLabel').textContent='until 22 October begins (India time)';
+    }else if(now<END){
+      c.classList.add('today');
+      $('status').textContent='Results are due today';
+      $('time').textContent=fmt(END-now);
+      $('timeLabel').textContent='left in 22 October (India time). No release time is given, so keep checking.';
+    }else{
+      c.classList.add('past');
+      $('status').textContent='The announced result day has passed';
+      $('time').textContent='--:--:--';
+      $('timeLabel').textContent='Check the official page, then write to bic@lpu.co.in if there is no news.';
+    }
+    if(nextAt){
+      var left=nextAt-now;
+      $('next').textContent=left>0?'Next reminder in '+fmt(left)+'.':'';
+      if(left<=0){fire();schedule()}
+    }
+  }
+
+  function beep(){
+    try{
+      var A=window.AudioContext||window.webkitAudioContext, ctx=new A();
+      [0,0.35,0.7].forEach(function(t){
+        var o=ctx.createOscillator(),g=ctx.createGain();
+        o.type='sine';o.frequency.value=880;o.connect(g);g.connect(ctx.destination);
+        g.gain.setValueAtTime(0.0001,ctx.currentTime+t);
+        g.gain.exponentialRampToValueAtTime(0.4,ctx.currentTime+t+0.03);
+        g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+t+0.3);
+        o.start(ctx.currentTime+t);o.stop(ctx.currentTime+t+0.32);
+      });
+    }catch(e){}
+  }
+
+  function fire(){
+    $('banner').classList.add('on');
+    document.title='Check BIC results now';
+    beep();
+    try{if('Notification' in window&&Notification.permission==='granted'){new Notification('BIC 2.0 results',{body:'Time to check the official page.'})}}catch(e){}
+    try{if(navigator.vibrate)navigator.vibrate([300,150,300])}catch(e){}
+  }
+
+  function schedule(){nextAt=new Date(Date.now()+Number($('every').value)*60000)}
+
+  async function keepAwake(){
+    try{if('wakeLock' in navigator){wake=await navigator.wakeLock.request('screen')}}catch(e){}
+  }
+
+  $('start').addEventListener('click',function(){
+    try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch(e){}
+    beep();
+    schedule();keepAwake();
+    $('start').hidden=true;$('stop').hidden=false;
+    tick();
+  });
+  $('stop').addEventListener('click',function(){
+    nextAt=null;$('next').textContent='Reminders stopped.';
+    $('stop').hidden=true;$('start').hidden=false;
+    try{if(wake){wake.release();wake=null}}catch(e){}
+  });
+  $('every').addEventListener('change',function(){if(nextAt)schedule()});
+  $('dismiss').addEventListener('click',function(){$('banner').classList.remove('on');document.title=origTitle});
+  $('open').addEventListener('click',function(){$('banner').classList.remove('on');document.title=origTitle});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&nextAt&&!wake)keepAwake()});
+
+  function showLog(){
+    var t=store('bic_last');
+    $('log').textContent=t?'Last checked: '+new Date(Number(t)).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}):'';
+  }
+  $('checked').addEventListener('click',function(){
+    store('bic_last',String(Date.now()));showLog();
+    $('banner').classList.remove('on');document.title=origTitle;
+    if(nextAt)schedule();
+  });
+
+  document.querySelectorAll('input[type=checkbox]').forEach(function(cb){
+    cb.checked=store('bic_chk_'+cb.dataset.k)==='1';
+    cb.addEventListener('change',function(){store('bic_chk_'+cb.dataset.k,cb.checked?'1':'0')});
+  });
+
+  showLog();tick();setInterval(tick,1000);
+})();
+</script>
+</body>
+</html>
